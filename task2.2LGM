@@ -1,0 +1,184 @@
+LGM VIRTUAL INTERNSHIP
+2.2 Prediction using Decision Tree Algorithm :
+Create the Decision Tree classifier and visualize it graphically.
+
+The purpose is if we feed any new data to this classifier, it would be able to predict the right class accordingly.
+
+Watch Tutorial from here https://youtu.be/CBCfOTePVPo
+
+Dataset : https://bit.ly/3kXTdox
+
+INTERMEDIATE LEVEL TASK
+
+import libraries
+
+[ ]
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+Read .CSV file
+
+[ ]
+df = pd.read_csv("/content/Iris (1).csv")
+[ ]
+df.head()
+
+[ ]
+df.tail()
+
+[ ]
+df.shape
+(150, 6)
+[ ]
+df.info()
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 150 entries, 0 to 149
+Data columns (total 6 columns):
+ #   Column         Non-Null Count  Dtype  
+---  ------         --------------  -----  
+ 0   Id             150 non-null    int64  
+ 1   SepalLengthCm  150 non-null    float64
+ 2   SepalWidthCm   150 non-null    float64
+ 3   PetalLengthCm  150 non-null    float64
+ 4   PetalWidthCm   150 non-null    float64
+ 5   Species        150 non-null    object 
+dtypes: float64(4), int64(1), object(1)
+memory usage: 7.2+ KB
+[ ]
+df.dtypes
+SepalLengthCm    float64
+SepalWidthCm     float64
+PetalLengthCm    float64
+PetalWidthCm     float64
+Species           object
+dtype: object
+[ ]
+df.isna().sum()
+Id               0
+SepalLengthCm    0
+SepalWidthCm     0
+PetalLengthCm    0
+PetalWidthCm     0
+Species          0
+dtype: int64
+[ ]
+df.isnull()
+
+[ ]
+df.drop("Id", axis=1 , inplace=True)
+[ ]
+df.describe()
+
+Plotting
+
+[ ]
+#Plotting distribution of data
+plt.figure(figsize=(10,5))
+sns.scatterplot(data=df, s=100, alpha=0.7)
+plt.grid()
+plt.show()
+
+[ ]
+#Extracting independent & dependent variables from dataset
+x = df.iloc[:,:-1]
+y = df.iloc[:,-1]
+Distribute test and train data
+
+[ ]
+#train test splitting
+from sklearn.model_selection import train_test_split
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.30,random_state=0) 
+[ ]
+from sklearn.tree import DecisionTreeClassifier
+classifier = DecisionTreeClassifier( criterion="entropy" , max_depth = 4 )
+classifier.fit(x_train,y_train)
+DecisionTreeClassifier(criterion='entropy', max_depth=4)
+[ ]
+y_pred = classifier.predict(x_test)
+y_pred
+array(['Iris-virginica', 'Iris-versicolor', 'Iris-setosa',
+       'Iris-virginica', 'Iris-setosa', 'Iris-virginica', 'Iris-setosa',
+       'Iris-versicolor', 'Iris-versicolor', 'Iris-versicolor',
+       'Iris-virginica', 'Iris-versicolor', 'Iris-versicolor',
+       'Iris-versicolor', 'Iris-versicolor', 'Iris-setosa',
+       'Iris-versicolor', 'Iris-versicolor', 'Iris-setosa', 'Iris-setosa',
+       'Iris-virginica', 'Iris-versicolor', 'Iris-setosa', 'Iris-setosa',
+       'Iris-virginica', 'Iris-setosa', 'Iris-setosa', 'Iris-versicolor',
+       'Iris-versicolor', 'Iris-setosa', 'Iris-virginica',
+       'Iris-versicolor', 'Iris-setosa', 'Iris-virginica',
+       'Iris-virginica', 'Iris-versicolor', 'Iris-setosa',
+       'Iris-virginica', 'Iris-versicolor', 'Iris-versicolor',
+       'Iris-virginica', 'Iris-setosa', 'Iris-virginica', 'Iris-setosa',
+       'Iris-setosa'], dtype=object)
+[ ]
+from sklearn import metrics
+metrics.accuracy_score(y_test , y_pred)
+0.9777777777777777
+visualize the confusion MAtrix
+
+[ ]
+from sklearn.metrics import confusion_matrix
+matrix=confusion_matrix(y_test,y_pred)
+matrix
+array([[16,  0,  0],
+       [ 0, 17,  1],
+       [ 0,  0, 11]])
+[ ]
+from sklearn.metrics import confusion_matrix
+matrix=confusion_matrix(y_test,y_pred)
+matrix
+array([[16,  0,  0],
+       [ 0, 17,  1],
+       [ 0,  0, 11]])
+[ ]
+# !conda install -c conda-forge pydotplus -y
+# !conda install -c conda-forge python-graphviz -y
+[ ]
+from  io import StringIO
+import pydotplus
+import matplotlib.image as mpimg
+from sklearn import tree
+from sklearn.tree import export_graphviz
+[ ]
+text_rep = tree.export_text(classifier)
+print(text_rep)
+|--- feature_2 <= 2.35
+|   |--- class: Iris-setosa
+|--- feature_2 >  2.35
+|   |--- feature_2 <= 4.95
+|   |   |--- feature_3 <= 1.65
+|   |   |   |--- class: Iris-versicolor
+|   |   |--- feature_3 >  1.65
+|   |   |   |--- feature_1 <= 3.10
+|   |   |   |   |--- class: Iris-virginica
+|   |   |   |--- feature_1 >  3.10
+|   |   |   |   |--- class: Iris-versicolor
+|   |--- feature_2 >  4.95
+|   |   |--- feature_3 <= 1.75
+|   |   |   |--- feature_3 <= 1.65
+|   |   |   |   |--- class: Iris-virginica
+|   |   |   |--- feature_3 >  1.65
+|   |   |   |   |--- class: Iris-versicolor
+|   |   |--- feature_3 >  1.75
+|   |   |   |--- class: Iris-virginica
+
+Draw th desicion tree
+
+[ ]
+# export_graphviz function converts decision tree classifier into dot file and pydotplus convert this dot file to png or displayable form on Jupyter.
+dot_data =StringIO()
+filename = "iris_classification.png"
+features=df.columns.tolist()[:-1] #column names
+target=df['Species'].unique() #target column
+fig = plt.figure(figsize=(15,15))
+dt = tree.export_graphviz(classifier, feature_names=features, out_file=dot_data, 
+                          class_names=target, filled=True,rotate=False,rounded = True,
+                         special_characters=True)
+graph = pydotplus.graph_from_dot_data(dot_data.getvalue())  
+graph.write_png(filename)
+img = mpimg.imread(filename)
+plt.figure(figsize=(100, 200),dpi=100)
+plt.imshow(img,interpolation='nearest')
+
+[ ]
